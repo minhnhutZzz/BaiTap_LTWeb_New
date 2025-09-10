@@ -1,0 +1,204 @@
+package vn.iotstar.controllers.admin;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.commons.beanutils.BeanUtils;
+
+import vn.iotstar.entity.Category;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import vn.iotstar.services.CategoryService;
+import vn.iotstar.services.impl.CategoryServiceImpl;
+import vn.iotstar.util.Constant;
+import vn.iotstar.util.UploadUtils;
+
+@MultipartConfig
+@WebServlet(urlPatterns = {
+    "/admin-category", "/admin-category/create", "/admin-category/update",
+    "/admin-category/edit", "/admin-category/delete", "/admin-category/reset"
+})
+public class CategoryController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    private CategoryService categoryService = new CategoryServiceImpl();
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String url = request.getRequestURL().toString();
+        Category category = null;
+
+        try {
+            if (url.contains("create")) {
+                request.getRequestDispatcher("/views/admin/add.jsp").forward(request, response);
+                return;
+            } else if (url.contains("delete")) {
+                delete(request, response);
+                category = new Category();
+                request.setAttribute("category", category);
+            } else if (url.contains("edit")) {
+                edit(request, response);
+            } else if (url.contains("reset")) {
+                category = new Category();
+                request.setAttribute("category", category);
+            }
+
+            findAll(request, response);
+            request.setAttribute("tag", "cate");
+            request.getRequestDispatcher("/views/admin/list.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi xử lý GET: " + e.getMessage());
+            request.getRequestDispatcher("/views/admin/error.jsp").forward(request, response);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String url = request.getRequestURL().toString();
+
+        try {
+            if (url.contains("create")) {
+                insert(request, response);
+            } else if (url.contains("update")) {
+                update(request, response);
+            } else if (url.contains("delete")) {
+                delete(request, response);
+            } else if (url.contains("reset")) {
+                request.setAttribute("category", new Category());
+            }
+
+            findAll(request, response);
+            request.getRequestDispatcher("/views/admin/list.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi xử lý POST: " + e.getMessage());
+            request.getRequestDispatcher("/views/admin/error.jsp").forward(request, response);
+        }
+    }
+
+    private void insert(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+
+            Category category = new Category();
+            BeanUtils.populate(category, request.getParameterMap());
+
+            // Kiểm tra dữ liệu bắt buộc
+            if (category.getCategorycode() == null || category.getCategorycode().trim().isEmpty()) {
+                throw new IllegalArgumentException("Mã danh mục không được để trống.");
+            }
+
+            // Xử lý ảnh
+            String fileName = category.getCategorycode() + System.currentTimeMillis();
+            String uploadPath = Constant.DIR + File.separator + "category";
+            String imagePath = UploadUtils.processUpload("images", request, uploadPath, fileName);
+            category.setImages(imagePath);
+
+            categoryService.insert(category);
+            request.setAttribute("message", "Đã thêm thành công");
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi thêm danh mục: " + e.getMessage());
+        }
+    }
+
+    private void update(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+
+            Category category = new Category();
+            BeanUtils.populate(category, request.getParameterMap());
+
+            Integer id = category.getCategoryId();
+            if (id == null) throw new IllegalArgumentException("Thiếu ID danh mục.");
+
+            Category oldcate = categoryService.findById(id);
+            if (oldcate == null) throw new IllegalArgumentException("Không tìm thấy danh mục với ID: " + id);
+
+            // Nếu không upload ảnh mới -> giữ ảnh cũ
+            if (request.getPart("images").getSize() == 0) {
+                category.setImages(oldcate.getImages());
+            } else {
+                // Xóa ảnh cũ nếu có
+                if (oldcate.getImages() != null) {
+                    File oldFile = new File(Constant.DIR + File.separator + "category" + File.separator + oldcate.getImages());
+                    if (oldFile.exists()) oldFile.delete();
+                }
+
+                // Upload ảnh mới
+                String fileName = category.getCategorycode() + System.currentTimeMillis();
+                String uploadPath = Constant.DIR + File.separator + "category";
+                String imagePath = UploadUtils.processUpload("images", request, uploadPath, fileName);
+                category.setImages(imagePath);
+            }
+
+            categoryService.update(category);
+            request.setAttribute("category", category);
+            request.setAttribute("message", "Cập nhật thành công!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi cập nhật danh mục: " + e.getMessage());
+        }
+    }
+
+    private void delete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String categoryId = request.getParameter("categoryId");
+            if (categoryId == null) throw new IllegalArgumentException("Thiếu categoryId");
+
+            int id = Integer.parseInt(categoryId);
+            categoryService.delete(id);
+
+            request.setAttribute("message", "Đã xóa thành công");
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "ID không hợp lệ.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi xóa danh mục: " + e.getMessage());
+        }
+    }
+
+    private void edit(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String categoryId = request.getParameter("categoryId");
+            if (categoryId == null) throw new IllegalArgumentException("Thiếu categoryId");
+
+            int id = Integer.parseInt(categoryId);
+            Category category = categoryService.findById(id);
+            if (category == null) throw new IllegalArgumentException("Không tìm thấy danh mục");
+
+            request.setAttribute("category", category);
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "ID không hợp lệ.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi sửa danh mục: " + e.getMessage());
+        }
+    }
+
+    private void findAll(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            List<Category> list = categoryService.findAll();
+            request.setAttribute("categorys", list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi tải danh sách danh mục: " + e.getMessage());
+        }
+    }
+}

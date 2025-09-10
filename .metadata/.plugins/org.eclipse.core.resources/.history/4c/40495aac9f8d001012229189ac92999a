@@ -1,0 +1,8 @@
+package LTW3.Dao;
+
+import LTW3.Entity.User;
+
+public class UserDao {
+	 User findByUsernameAndPassword(String username, String password);
+
+}

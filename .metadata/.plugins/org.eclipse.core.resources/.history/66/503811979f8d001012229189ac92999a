@@ -1,0 +1,6 @@
+package LTW3.Service;
+
+public interface UserService {
+    User findByUsernameAndPassword(String username, String password);
+}
+

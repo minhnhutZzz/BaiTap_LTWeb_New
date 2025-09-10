@@ -1,0 +1,5 @@
+package LTW3.Dao.Impl;
+
+public class UserDaoImpl {
+
+}

@@ -1,0 +1,13 @@
+package vn.iotstar.dao;
+
+import java.util.List;
+import java.util.Locale.Category;
+
+public interface CategoryDao {
+	
+	void create(Category category);
+	Category update(Category category);
+	Category findById(int id);
+	List<Category> findAll();
+
+}
