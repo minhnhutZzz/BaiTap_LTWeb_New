@@ -1,0 +1,76 @@
+package LTW3.Controller.admin;
+
+import java.io.IOException;
+import java.util.List;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import LTW3.Entity.User;
+import LTW3.Entity.Category;
+import LTW3.Service.CategoryService;
+import LTW3.Service.Impl.CategoryServiceImpl;
+
+@WebFilter(urlPatterns = {"/admin/home", "/manager/home", "/user/home"})
+public class AuthFilter implements Filter {
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // Nếu không cần thêm cấu hình, có thể để trống.
+    }
+
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user"); // Lấy thông tin người dùng từ session
+        String url = request.getRequestURI();
+
+        if (user != null) { // Kiểm tra người dùng đã đăng nhập chưa
+            CategoryService categoryService = new CategoryServiceImpl();
+            List<Category> listCategory;
+
+            // Kiểm tra quyền người dùng và lấy dữ liệu
+            if (user.getRoleid() == 1 || user.getRoleid() == 3) {
+                listCategory = categoryService.findAll();  // Admin và User thấy tất cả
+            } else {
+                listCategory = categoryService.findByUser(user);  // Manager chỉ thấy của mình
+            }
+            request.setAttribute("categorys", listCategory); // Lưu danh sách category vào request
+
+            // Phân quyền cho các trang home
+            if (url.contains("admin")) {
+                if (user.getRoleid() == 1) {
+                    chain.doFilter(request, response); // Nếu là Admin, tiếp tục với request
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/login");
+                }
+            } else if (url.contains("manager")) {
+                if (user.getRoleid() == 2) {
+                    chain.doFilter(request, response); // Nếu là Manager, tiếp tục với request
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/login");
+                }
+            } else if (url.contains("user")) {
+                if (user.getRoleid() == 5) {
+                    chain.doFilter(request, response); // Nếu là User, tiếp tục với request
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/login");
+                }
+            }
+        } else {
+            response.sendRedirect(request.getContextPath() + "/login"); // Nếu chưa đăng nhập, chuyển hướng đến trang login
+        }
+    }
+
+    @Override
+    public void destroy() {
+        // Nếu không cần cleanup, có thể để trống.
+    }
+}

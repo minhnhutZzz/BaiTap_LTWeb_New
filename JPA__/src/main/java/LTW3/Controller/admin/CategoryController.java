@@ -171,7 +171,7 @@ public class CategoryController extends HttpServlet {
 			HttpSession session = request.getSession();
 			User user = (User) session.getAttribute("user");
 
-			if (user.getRoleid() == 1 || category.getUser().getId() == user.getId()) {
+			if (category.getUser().getId() == user.getId()) {
 				request.setAttribute("category", category);
 			} else {
 				request.setAttribute("error", "Bạn không có quyền chỉnh sửa mục này!");
@@ -184,68 +184,87 @@ public class CategoryController extends HttpServlet {
 	}
 
 	protected void delete(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		try {
-			String categoryId = request.getParameter("categoryId");
-			Category category = categoryService.findById(Integer.parseInt(categoryId));
+	        throws ServletException, IOException {
+	    try {
+	        String categoryId = request.getParameter("categoryId");
+	        Category category = categoryService.findById(Integer.parseInt(categoryId));
 
-			HttpSession session = request.getSession();
-			User user = (User) session.getAttribute("user");
+	        if (category == null) {
+	            request.setAttribute("error", "Không tìm thấy danh mục cần xóa!");
+	            return;
+	        }
 
-			if (user.getRoleid() == 1 || category.getUser().getId() == user.getId()) {
-				categoryService.delete(category.getCategoryId());
-				request.setAttribute("message", "Đã xóa thành công");
-			} else {
-				request.setAttribute("error", "Bạn không có quyền xóa mục này!");
-			}
+	        HttpSession session = request.getSession();
+	        User user = (User) session.getAttribute("user");
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			request.setAttribute("error", "Lỗi delete: " + e.getMessage());
-		}
+	        if (user != null && category.getUser().getId() == user.getId()) {
+	            categoryService.delete(category.getCategoryId());
+	            request.setAttribute("message", "Đã xóa thành công");
+	        } else {
+	            request.setAttribute("error", "Bạn không có quyền xóa danh mục này!");
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        request.setAttribute("error", "Lỗi delete: " + e.getMessage());
+	    }
 	}
+
 
 	protected void update(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		try {
-			request.setCharacterEncoding("UTF-8");
-			response.setCharacterEncoding("UTF-8");
+	        throws ServletException, IOException {
+	    try {
+	        request.setCharacterEncoding("UTF-8");
+	        response.setCharacterEncoding("UTF-8");
 
-			Category category = new Category();
-			BeanUtils.populate(category, request.getParameterMap());
+	        Category category = new Category();
+	        BeanUtils.populate(category, request.getParameterMap());
 
-			Category oldcate = categoryService.findById(category.getCategoryId());
-			category.setUser(oldcate.getUser());
+	        // Lấy thông tin cũ từ DB
+	        Category oldCategory = categoryService.findById(category.getCategoryId());
+	        if (oldCategory == null) {
+	            request.setAttribute("error", "Không tìm thấy danh mục để cập nhật!");
+	            return;
+	        }
 
-			HttpSession session = request.getSession();
-			User user = (User) session.getAttribute("user");
+	        HttpSession session = request.getSession();
+	        User user = (User) session.getAttribute("user");
 
-			if (user.getRoleid() != 1 && oldcate.getUser().getId() != user.getId()) {
-				request.setAttribute("error", "Bạn không có quyền cập nhật mục này!");
-				return;
-			}
+	        // Kiểm tra quyền cập nhật
+	        if (user == null || oldCategory.getUser().getId() != user.getId()) {
+	            request.setAttribute("error", "Bạn không có quyền cập nhật danh mục này!");
+	            return;
+	        }
 
-			category.setUser(oldcate.getUser());
+	        // Giữ nguyên người tạo cũ
+	        category.setUser(oldCategory.getUser());
 
-			if (request.getPart("images").getSize() == 0) {
-				category.setImages(oldcate.getImages());
-			} else {
-				if (oldcate.getImages() != null) {
-					File file = new File(Constant.DIR + "\\category\\" + oldcate.getImages());
-					if (file.exists())
-						file.delete();
-				}
-				String fileName = category.getCategoryCode() + System.currentTimeMillis();
-				category.setImages(UploadUtils.processUpload("images", request, Constant.DIR + "\\category", fileName));
-			}
+	        // Xử lý ảnh (nếu có thay đổi)
+	        if (request.getPart("images").getSize() == 0) {
+	            category.setImages(oldCategory.getImages());
+	        } else {
+	            // Xóa ảnh cũ nếu có
+	            if (oldCategory.getImages() != null) {
+	                File file = new File(Constant.DIR + "\\category\\" + oldCategory.getImages());
+	                if (file.exists()) {
+	                    file.delete();
+	                }
+	            }
 
-			categoryService.update(category);
-			request.setAttribute("category", category);
-			request.setAttribute("message", "Cập nhật thành công");
+	            // Upload ảnh mới
+	            String fileName = category.getCategoryCode() + System.currentTimeMillis();
+	            category.setImages(UploadUtils.processUpload("images", request, Constant.DIR + "\\category", fileName));
+	        }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			request.setAttribute("error", "Lỗi update: " + e.getMessage());
-		}
+	        // Cập nhật vào DB
+	        categoryService.update(category);
+	        request.setAttribute("category", category);
+	        request.setAttribute("message", "Cập nhật thành công");
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        request.setAttribute("error", "Lỗi update: " + e.getMessage());
+	    }
 	}
+
 }

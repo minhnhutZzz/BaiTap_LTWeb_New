@@ -1,8 +1,9 @@
 package LTW3.Controller.admin;
 
-import java.io.IOException;
-import java.util.List;
 
+import java.io.IOException;
+
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,6 +15,7 @@ import LTW3.Entity.Category;
 import LTW3.Service.CategoryService;
 import LTW3.Service.Impl.CategoryServiceImpl;
 
+
 @WebServlet(urlPatterns = { "/admin/home", "/manager/home", "/user/home" })
 public class AuthorizationController extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -24,6 +26,7 @@ public class AuthorizationController extends HttpServlet {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
 
+        // Kiểm tra nếu người dùng đã đăng nhập
         if (user != null) {
             CategoryService categoryService = new CategoryServiceImpl();
             List<Category> listCategory;
@@ -36,6 +39,7 @@ public class AuthorizationController extends HttpServlet {
 
             req.setAttribute("categorys", listCategory);
 
+            // Kiểm tra URL và điều hướng đến trang JSP tương ứng
             if (url.contains("admin")) {
                 if (user.getRoleid() == 1) {
                     req.getRequestDispatcher("/views/admin/home.jsp").forward(req, resp);
@@ -60,3 +64,4 @@ public class AuthorizationController extends HttpServlet {
         }
     }
 }
+

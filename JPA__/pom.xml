@@ -116,14 +116,6 @@
 			<version>2.24.3</version>
 			<scope>compile</scope>
 		</dependency>
-
-
-
-		<dependency>
-			<groupId>bt.laptrinhweb</groupId>
-			<artifactId>BaiTH3</artifactId>
-			<version>1.1.0</version>
-		</dependency>
 	</dependencies>
 
 	<build>

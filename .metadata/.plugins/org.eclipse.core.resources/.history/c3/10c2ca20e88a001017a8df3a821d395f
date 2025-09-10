@@ -1,7 +1,0 @@
-public class JPAConfig {
-    private static final EntityManagerFactory factory = Persistence.createEntityManagerFactory("dataSource");
-
-    public static EntityManager getEntityManager() {
-        return factory.createEntityManager();
-    }
-}

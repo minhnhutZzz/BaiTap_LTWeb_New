@@ -36,6 +36,10 @@
 		<item key="SmartImportRootWizardPage.STORE_NESTED_PROJECTS" value="true"/>
 		<item key="SmartImportRootWizardPage.STORE_CONFIGURE_NATURES" value="true"/>
 		<list key="org.eclipse.ui.internal.wizards.datatransfer.SmartImportRootWizardPage.knownSources">
+			<item value="D:\LTWeb_BT\BTTuan2"/>
+			<item value="D:\LTWeb_BT\Tuan2"/>
+			<item value="D:\caiToolLapTrinhWeb\Workspace_Spring_Tool_Suite\LaptrinhWeb\baitap2_3"/>
+			<item value="D:\LTWeb_BT\BaiTap\baitap2_3"/>
 			<item value="D:\LTWeb_BT\JPA_Week3"/>
 			<item value="D:\caiToolLapTrinhWeb\Workspace_Spring_Tool_Suite\LaptrinhWeb\baitap2_3\HelloServlet"/>
 		</list>
