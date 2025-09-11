@@ -1,5 +1,0 @@
-package LTW3.Service;
-
-public interface UserService {
-
-}

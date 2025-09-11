@@ -2,18 +2,18 @@
 <section name="Workbench">
 	<item key="org.eclipse.egit.ui.internal.clone.GitSelectWizardPageWizardSel" value="0"/>
 	<list key="EGit.KnownHosts">
-		<item value="git.eclipse.org"/>
 		<item value="bitbucket.org"/>
+		<item value="git.eclipse.org"/>
 		<item value="github.com"/>
 	</list>
 	<list key="RepositorySelectionPage.UsedUris">
+		<item value="https://github.com/BaoCool-dev/JPA_Week3.git"/>
 		<item value="https://github.com/24oanh/ltweb_baitap"/>
 		<item value="https://github.com/24oanh/ltweb_baitap/tree/main"/>
 		<item value="https://github.com/24oanh/ltweb_baitap/tree/main/demo"/>
 		<item value="https://github.com/BaoCool-dev/BTLTW_Tuan2"/>
 		<item value="https://github.com/BaoCool-dev/BTLTW_Tuan2/tree/master/HelloServlet"/>
 		<item value="https://github.com/24oanh/ltweb_baitap/tree/main/demo/src/main/java/week2"/>
-		<item value="https://github.com/BaoCool-dev/JPA_Week3.git"/>
 		<item value="https://github.com/HuyQuangThai/23110228_ThaiQuangHuy_LTWeb"/>
 		<item value="https://github.com/minhnhutZzz/BaiTap_LTWeb"/>
 	</list>

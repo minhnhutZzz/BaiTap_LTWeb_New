@@ -1,5 +1,0 @@
-package LTW3.Dao;
-
-public interface UserDao {
-
-}

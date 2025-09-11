@@ -10,7 +10,6 @@
     <fullyQualifiedTypeName name="jakarta.persistence.Persistence"/>
     <fullyQualifiedTypeName name="vn.iotstar.dao.impl.CategoryDaoImpl"/>
     <fullyQualifiedTypeName name="jakarta.servlet.annotation.WebServlet"/>
-    <fullyQualifiedTypeName name="jakarta.servlet.RequestDispatcher"/>
     <fullyQualifiedTypeName name="vn.iotstar.services.CategoryService"/>
     <fullyQualifiedTypeName name="vn.iotstar.services.impl.CategoryServiceImpl"/>
     <fullyQualifiedTypeName name="jakarta.persistence.NamedQuery"/>
@@ -31,4 +30,7 @@
     <fullyQualifiedTypeName name="java.nio.file.Files"/>
     <fullyQualifiedTypeName name="vn.iotstar.entity.Category"/>
     <fullyQualifiedTypeName name="LTW3.Service.Impl.UserServiceImpl"/>
+    <fullyQualifiedTypeName name="LTW3.Service.CategoryService"/>
+    <fullyQualifiedTypeName name="LTW3.Service.Impl.CategoryServiceImpl"/>
+    <fullyQualifiedTypeName name="jakarta.servlet.RequestDispatcher"/>
 </qualifiedTypeNameHistroy>
